@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect } from "react";
-import { Sparkles, Heart, Gift } from "lucide-react";
+import { Sparkles, Heart, Gift, Settings } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { AppConfig, Slide } from "./types";
 import { DEFAULT_CONFIG, decodeConfigFromUrl, encodeConfigToUrl, migrateConfig } from "./data";
@@ -49,36 +49,13 @@ export default function App() {
       if (saved) {
         let parsed = JSON.parse(saved) as AppConfig;
         
-        // Migrate/update the stored slides if they still have the old placeholder texts or don't match the new descriptions
         let hasChanges = false;
         
-        // Run general image migration
+        // Run general image path migration
         const migrated = migrateConfig(parsed);
         if (JSON.stringify(migrated) !== JSON.stringify(parsed)) {
           hasChanges = true;
           parsed = migrated;
-        }
-
-        if (parsed.slides && Array.isArray(parsed.slides)) {
-          parsed.slides = parsed.slides.map(slide => {
-            if (slide.id === 1 && (!slide.description.includes("KTP") && !slide.description.includes("Sweet Seventeen"))) {
-              hasChanges = true;
-              return DEFAULT_CONFIG.slides[0];
-            }
-            if (slide.id === 2 && (!slide.description.includes("bukan cuma pasangan") && !slide.description.includes("My Fav Human"))) {
-              hasChanges = true;
-              return DEFAULT_CONFIG.slides[1];
-            }
-            if (slide.id === 3 && (!slide.description.includes("Safest Place") && !slide.description.includes("tempat paling nyaman"))) {
-              hasChanges = true;
-              return DEFAULT_CONFIG.slides[2];
-            }
-            if (slide.id === 4 && (!slide.description.includes("Doa Dan Harapan") && !slide.description.includes("Di usia baru ini"))) {
-              hasChanges = true;
-              return DEFAULT_CONFIG.slides[3];
-            }
-            return slide;
-          });
         }
         
         if (hasChanges) {
@@ -188,6 +165,15 @@ export default function App() {
           <span className="text-sm font-serif font-semibold text-rose-600">Sweet17✨</span>
         </div>
 
+        {/* Visual Builder Access Button */}
+        <button
+          onClick={() => setIsSettingsOpen(true)}
+          className="flex items-center space-x-1 px-3 py-1.5 bg-white/70 hover:bg-white backdrop-blur-sm border border-pink-200/50 hover:border-pink-300 text-rose-500 rounded-full text-xs font-semibold shadow-sm transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer"
+          title="Atur Konten & Nomor WhatsApp"
+        >
+          <Settings className="w-3.5 h-3.5 animate-spin-slow text-rose-400" />
+          <span>Edit Kado 🛠️</span>
+        </button>
 
       </header>
 

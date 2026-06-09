@@ -4,7 +4,7 @@ export const DEFAULT_CONFIG: AppConfig = {
   recipientName: "Sayang",
   senderName: "Aku yang Menyayangimu",
   birthDate: "2009-06-09", // Standard sweet 17 calculation based on 2026 local time
-  whatsappNumber: "+6281234567890",
+  whatsappNumber: "+6282245242080",
   musicType: "youtube",
   musicUrl: "QYh6mYI-mG8", // Bazzi - Beautiful (Official Audio)
   slides: [
@@ -69,20 +69,34 @@ export function migrateConfig(config: AppConfig): AppConfig {
   }
   
   const migratedSlides = config.slides.map(slide => {
-    let imageUrl = slide.imageUrl;
+    let imageUrl = slide.imageUrl || "";
     
-    // Auto convert old path strings from links
-    if (imageUrl && imageUrl.startsWith("/src/assets/images/")) {
-      imageUrl = imageUrl.replace("/src/assets/images/", "/images/");
+    // Auto fallback if imageUrl is empty
+    if (!imageUrl.trim()) {
+      const defaultSlide = DEFAULT_CONFIG.slides.find(s => s.id === slide.id);
+      if (defaultSlide) {
+        imageUrl = defaultSlide.imageUrl;
+      }
+    }
+    
+    // Auto convert old path strings from links/hash/local storage robustly
+    if (imageUrl) {
+      if (imageUrl.includes("src/assets/images/")) {
+        imageUrl = "/images/" + imageUrl.split("src/assets/images/")[1];
+      } else if (imageUrl.includes("assets/images/")) {
+        imageUrl = "/images/" + imageUrl.split("assets/images/")[1];
+      } else if (imageUrl.includes("public/images/")) {
+        imageUrl = "/images/" + imageUrl.split("public/images/")[1];
+      }
     }
 
-    if (slide.id === 1 && imageUrl.includes("pastel_cake")) {
+    if (slide.id === 1 && (!imageUrl || imageUrl.includes("pastel_cake"))) {
       imageUrl = "/images/regenerated_image_1781025159122.jpg";
-    } else if (slide.id === 2 && imageUrl.includes("cute_couple")) {
+    } else if (slide.id === 2 && (!imageUrl || imageUrl.includes("cute_couple"))) {
       imageUrl = "/images/regenerated_image_1781025410418.jpg";
-    } else if (slide.id === 3 && (imageUrl.includes("love_letter") || imageUrl.includes("regenerated_image_1781024898341.jpg") || imageUrl.includes("scout_hijab_girl_1781026420148.png") || imageUrl.includes("regenerated_image_1781026769986.jpg"))) {
+    } else if (slide.id === 3 && (!imageUrl || imageUrl.includes("love_letter") || imageUrl.includes("regenerated_image_1781024898341.jpg") || imageUrl.includes("scout_hijab_girl_1781026420148.png") || imageUrl.includes("regenerated_image_1781026769986.jpg"))) {
       imageUrl = "/images/regenerated_image_1781026769986.jpg";
-    } else if (slide.id === 4 && (imageUrl.includes("unsplash") || imageUrl.includes("1781025159122.jpg"))) {
+    } else if (slide.id === 4 && (!imageUrl || imageUrl.includes("unsplash") || imageUrl.includes("1781025159122.jpg"))) {
       imageUrl = "/images/regenerated_image_1781025029328.jpg";
     }
     return {
