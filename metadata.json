@@ -1,0 +1,6 @@
+{
+  "name": "Sweet 17 Birthday Wish",
+  "description": "Website ucapan ulang tahun ke-17 romantis dengan musik latar Bazzi - Beautiful dan tiup lilin interaktif.",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
