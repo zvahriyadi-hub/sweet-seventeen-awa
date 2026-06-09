@@ -6,7 +6,7 @@ export const DEFAULT_CONFIG: AppConfig = {
   birthDate: "2009-06-09", // Standard sweet 17 calculation based on 2026 local time
   whatsappNumber: "+6282245242080",
   musicType: "youtube",
-  musicUrl: "QYh6mYI-mG8", // Bazzi - Beautiful (Official Audio)
+  musicUrl: "BWC9OS45HAM", // Bazzi - Beautiful (Official Audio)
   slides: [
     {
       id: 1,
