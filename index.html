@@ -206,6 +206,7 @@
     .confetti-piece { position: absolute; border-radius: 50%; }
     .yt-player { position: absolute; top: 0; left: 0; width: 1px; height: 1px; opacity: 0; pointer-events: none; overflow: hidden; }
     /* ===== FLOATING PHOTO BACKGROUND ===== */
+/* ===== FLOATING PHOTO BACKGROUND ===== */
 #photo-bg-canvas {
   position: fixed;
   inset: 0;
@@ -216,16 +217,15 @@
 }
 .bg-photo-item {
   position: absolute;
-  bottom: -220px;
   border-radius: 16px;
   object-fit: cover;
   opacity: 0;
-  animation: floatPhotoUp linear infinite;
+  will-change: transform, opacity;
 }
 @keyframes floatPhotoUp {
   0%   { transform: translateY(0) rotate(var(--rot)); opacity: 0; }
-  10%  { opacity: 0.5; }
-  90%  { opacity: 0.5; }
+  8%   { opacity: 0.5; }
+  88%  { opacity: 0.5; }
   100% { transform: translateY(calc(-100vh - 250px)) rotate(var(--rot)); opacity: 0; }
 }
     svg.icon { display: inline-block; vertical-align: middle; }
@@ -332,7 +332,7 @@
         </div>
         <div class="cake-footer">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="#fca5a5"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-          <span>SEMOGA BEBEE SUKA YAA💞</span>
+          <span>Semoga Kamu Suka Yaaaa!</span>
         </div>
       </div>
     </div>
@@ -734,57 +734,55 @@ function startPhotoBg() {
   canvas.style.display = "block";
   canvas.innerHTML = "";
 
-  // Kumpulkan semua foto dari slides
   const photos = config.slides
     .map(s => s.imageUrl)
     .filter(url => url && url.length > 10);
 
   if (photos.length === 0) return;
 
-  const totalItems = 12; // jumlah foto yang melayang sekaligus
-
+  const totalItems = 12;
+  // Spawn foto satu per satu dengan jeda waktu agar tidak blink bersamaan
   for (let i = 0; i < totalItems; i++) {
-    spawnBgPhoto(canvas, photos, i * (6000 / totalItems));
+    setTimeout(() => {
+      spawnBgPhoto(canvas, photos);
+    }, i * 600); // jeda 600ms antar foto
   }
 }
 
-function spawnBgPhoto(canvas, photos, initialDelay) {
+function spawnBgPhoto(canvas, photos) {
   const img = document.createElement("img");
   img.className = "bg-photo-item";
 
-  // Pilih foto secara acak
-  const src = photos[Math.floor(Math.random() * photos.length)];
-  img.src = src;
+  // Pilih foto acak
+  img.src = photos[Math.floor(Math.random() * photos.length)];
 
-  // Ukuran acak: 80px - 160px
+  // Ukuran acak 80-160px
   const size = 80 + Math.floor(Math.random() * 80);
   img.style.width = size + "px";
   img.style.height = size + "px";
 
   // Posisi horizontal acak
-  const leftPct = Math.random() * 95;
-  img.style.left = leftPct + "%";
+  img.style.left = (Math.random() * 88) + "%";
 
-  // Rotasi acak -15° sampai 15°
+  // Mulai dari bawah layar
+  img.style.bottom = "-" + (size + 20) + "px";
+  img.style.top = "auto";
+
+  // Rotasi acak
   const rot = (Math.random() * 30 - 15).toFixed(1) + "deg";
   img.style.setProperty("--rot", rot);
 
-  // Durasi acak: 8s - 16s
-  const dur = 8 + Math.random() * 8;
-  img.style.animationDuration = dur + "s";
-  img.style.animationDelay = initialDelay + "ms";
-
-  // Saat animasi selesai, spawn ulang (looping)
-  img.addEventListener("animationiteration", () => {
-    // Ganti foto dan posisi baru setiap loop
-    img.src = photos[Math.floor(Math.random() * photos.length)];
-    img.style.left = (Math.random() * 95) + "%";
-    const newRot = (Math.random() * 30 - 15).toFixed(1) + "deg";
-    img.style.setProperty("--rot", newRot);
-    img.style.animationDuration = (8 + Math.random() * 8) + "s";
-  });
+  // Durasi acak 9-15 detik
+  const dur = 9 + Math.random() * 6;
+  img.style.animation = `floatPhotoUp ${dur}s ease-in-out forwards`;
 
   canvas.appendChild(img);
+
+  // Saat animasi selesai: hapus elemen lama → spawn baru (TANPA blink!)
+  img.addEventListener("animationend", () => {
+    img.remove(); // hapus dulu
+    spawnBgPhoto(canvas, photos); // baru buat yang baru
+  });
 }
 
 function updateMusicUI(playing) {
